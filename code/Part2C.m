@@ -2,10 +2,13 @@
 % ELEC 4700 Assignment 3
 % Nicholas Ramkhalawansingh
 
-% Part 1
+% Part 2C
 %=======================================================================
 clear
 close all
+
+% GET FIELD FROM PART 2
+Part2
 
 m_0=9.10938e-31;        % electron rest mass (kg)
 m_n=0.26*m_0;           % electron effective mass (kg)
@@ -24,15 +27,6 @@ xmax=200e-9;
 area=xmax*ymax; % Cross sectional area, for the current calculation
 dt=4e-15;
 P_scat=1-exp(-dt/tau_mn);
-
-% Intoduce an electric field
-Ex=0.1/xmax;    % Field is constant throughout material; a function of the voltage and length of the material
-Ey=0;
-Fx=q*Ex;
-Fy=q*Ey;
-
-fprintf("E field: %e V/m\n",sqrt(Ex^2+Ey^2))
-fprintf("F on each eletron: %e N\n",sqrt(Fx^2+Fy^2))
 
 % Generate random electron positions
 Px=rand(1,num_electrons).*xmax;
@@ -68,9 +62,21 @@ for k=2:num_steps
     Vx(scat)=randn(1,length(Vx(scat)))*sqrt(k_b*T/m_n)*twiddle;
     Vy(scat)=randn(1,length(Vx(scat)))*sqrt(k_b*T/m_n)*twiddle;    
     
-    % Acceleration due to the electric field
-    Vx=Vx+Fx/m_n*dt;
-    Vy=Vy+Fy/m_n*dt;    
+    % TODO: Try to optimize this    
+    %=================================================    
+    % Force is a function of the E-field, which is a function of space because of the bottleneck.
+    % Select electrons by E-Field bin and apply force accordingly.
+    
+    % For all electrons in a dx*dy bin, apply the force of that bin
+    for x=1:nx
+        for y=1:ny
+          n = y + (x - 1) * ny;          
+          Vx(Px>(x-1)*dx & Px<x*dx & Py>(y-1)*dy & Py<y*dy)=Vx(Px>(x-1)*dx & Px<x*dx & Py>(y-1)*dy & Py<y*dy)+q*Ex(n)/m_n*dt;
+          Vy(Px>(x-1)*dx & Px<x*dx & Py>(y-1)*dy & Py<y*dy)=Vy(Px>(x-1)*dx & Px<x*dx & Py>(y-1)*dy & Py<y*dy)+q*Ey(n)/m_n*dt;
+        end      
+    end
+    %=================================================
+    
     
     % Electrons leaving lateral bounds come back in to preserve density
     Px(Px<0)=xmax+Px(Px<0);
