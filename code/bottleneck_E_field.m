@@ -1,19 +1,15 @@
-function [Ex,Ey,nx,ny] = Part2(main,w,l,dx,dy)
+function [Ex,Ey,nx,ny] = bottleneck_E_field(main,V0,w,l,dx,dy,bottle_left,bottle_right,bottle_top,bottle_bottom)
+% Part 2a,b
 % Computes the E field of the bottleneck scenario.
-% example call: Part2(true,100e-9,200e-9,25e-10,25e-10) 
+% Usage: bottleneck_E_field(true,0.1,100e-9,200e-9,25e-10,25e-10,0.8e-7,1.2e-07,4e-8,6e-8) 
 
-    %w=100e-9;
-    %l=200e-9;
-    %dx=25e-10;
-    %dy=25e-10;
     ny=int64(w/dx);
     nx=int64(l/dy);
-
-    V0=0.1;
-    cMap=ones(nx,ny);
+    
     % Change the conductance for the bottleneck on each side 
-    cMap(nx/3:2*nx/3  , 1:ny/3)=1e-2; 
-    cMap(nx/3:2*nx/3 , 2*ny/3:ny)=1e-2;
+    cMap=ones(nx,ny);
+    cMap(int64(bottle_left/dx):int64(bottle_right/dx) , 1:int64(bottle_top/dy))=1e-2; 
+    cMap(int64(bottle_left/dx):int64(bottle_right/dx) , int64(bottle_bottom/dy):ny)=1e-2;
 
     % G-matrix, relates the value of a node to all other nodes
     G=sparse(nx*ny,nx*ny);
@@ -82,7 +78,8 @@ function [Ex,Ey,nx,ny] = Part2(main,w,l,dx,dy)
     end
 
     % Solve for voltage
-    V = G\F;
+    v_surf=zeros(nx,ny);
+    V = G\F;    
     for x=1:nx
         for y=1:ny
           n = y + (x - 1) * ny;
@@ -98,17 +95,19 @@ function [Ex,Ey,nx,ny] = Part2(main,w,l,dx,dy)
         % Voltage Plot 
         figure(1);
         surf(X,Y,v_surf','EdgeColor','none');
-        title('V(x,y)');
-        ylabel('W');
-        xlabel('L');
+        title('2a: V(x,y)');
+        ylabel('W (m)');
+        xlabel('L (m)');
+        zlabel('Volts (V)')
+        c=colorbar;
+        c.Label.String="Volts (V)";
 
-        % E field Plot 
-
+        % E field Plot
         figure(2);
         quiver(X,Y,Ex,Ey);
-        title('E(x,y)' );
-        ylabel('W');
-        xlabel('L');        
+        title('2b: E(x,y)' );
+        ylabel('W (m)');
+        xlabel('L (m)');        
     end    
    
 end

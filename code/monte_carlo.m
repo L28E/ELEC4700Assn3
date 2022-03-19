@@ -69,8 +69,8 @@ for k=2:num_steps
     Vy(scat)=randn(1,length(Vx(scat)))*sqrt(k_b*T/m_n)*twiddle;    
     
     % Acceleration due to the electric field
-    Vx=Vx+Fx/m_n*dt;
-    Vy=Vy+Fy/m_n*dt;    
+    Vx=Vx-Fx/m_n*dt;
+    Vy=Vy-Fy/m_n*dt;    
     
     % Electrons leaving lateral bounds come back in to preserve density
     Px(Px<0)=xmax+Px(Px<0);
@@ -101,34 +101,37 @@ for k=2:num_steps
    
     pause(0.00001)    
 end
-title("I: Electron Trajectories")
-ylabel("Y")
-xlabel("X")
+title("1C: Electron Trajectories")
+ylabel("Y (m)")
+xlabel("X (m)")
 
 % Plot current
 figure(2)
-plot(t,current)
-title("Current vs. Time")
+plot(t,abs(current))
+title("1D: Current vs. Time")
 ylabel("Current (A)")
 xlabel("Time (s)")
 
 % Plot temperature
 %https://www.mathworks.com/help/matlab/ref/griddata.html
 figure(3);
+subplot(1,2,1);
 temp=(Vx(:).^2+Vy(:).^2)*m_n/k_b/2;
 [xq,yq] = meshgrid(0:0.05*xmax:xmax,0:0.05*ymax:ymax);
 vq = griddata(Px,Py,temp',xq,yq);
 s=mesh(xq,yq,vq);
-hold on;
-plot3(Px,Py,temp','.r');
-colorbar
-title("Temperature Map")
 s.FaceColor='interp';
-%colormap('parula')
+c=colorbar;
+c.Label.String="Temperature (k)";
+title("Temperature Map")
+ylabel("Y (m)")
+xlabel("X (m)")
 
 % Plot density map
-figure(4);
-binscatter(Px,Py,75)
+subplot(1,2,2);
+binscatter(Px,Py,20)
 title("Electron Density Map")
+ylabel("Y (m)")
+xlabel("X (m)")
 axis([0 xmax 0 ymax])
 colormap('parula')
