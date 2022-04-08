@@ -18,8 +18,7 @@ function [mean_current]=coupled_sim(question,V0,channel_width)
     num_steps=1000;
     num_traces=5;
     ymax=100e-9;
-    xmax=200e-9;
-    area=xmax*ymax; % Cross sectional area, for the current calculation
+    xmax=200e-9;    
     dt=4e-15;
     P_scat=1-exp(-dt/tau_mn);
 
@@ -125,7 +124,7 @@ function [mean_current]=coupled_sim(question,V0,channel_width)
         X(:,k)=Px(tracked_indices);
         Y(:,k)=Py(tracked_indices);    
         current(k)=mean(Vx) *q *10e19 ... % Current Density 
-                   *area; % Cross sectional area
+                   *ymax; % Cross sectional area
 
         % Record the time steps where the electrons scatter
         %collisions(scat|beyond_upper|beyond_lower,k)=1;
